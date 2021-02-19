@@ -116,8 +116,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message id="SIHHURI_INFO_FINISHED_COMPLETE_BACKUP">
-        <source>Finished backup of %1 items in %2 seconds.</source>
-        <oldsource>Finished backup of %1 items in %2 minutes.</oldsource>
+        <source>Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4</source>
+        <oldsource>Finished backup of %1 items in %2 seconds.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message id="SIHHURI_CRIT_FAILED_OPEN_DUMPFILE_WRITE">
