@@ -24,6 +24,10 @@ public:
 
     void start();
 
+    QStringList errors() const;
+    QStringList warnings() const;
+    QString id() const;
+
 protected:
     virtual bool loadConfiguration() = 0;
 

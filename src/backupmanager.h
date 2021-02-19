@@ -13,6 +13,8 @@
 #include <QProcess>
 #include <QFileInfo>
 #include <chrono>
+#include <utility>
+#include <vector>
 
 class AbstractBackup;
 
@@ -28,14 +30,15 @@ public:
 private slots:
     void doStart();
     void runBackup();
-    void onTarDbsFinished();
     void doChangeOwner();
 
 private:
-    void tarDbs();
     void changeOwner();
+    void finish();
     void handleError(const QString &msg, int exitCode);
 
+    std::vector<std::pair<QString, QStringList>> m_errors;
+    std::vector<std::pair<QString, QStringList>> m_warnings;
     QVariantMap m_config;
     QStringList m_types;
     QString m_depot;

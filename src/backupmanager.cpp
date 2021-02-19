@@ -103,44 +103,27 @@ void BackupManager::doStart()
 void BackupManager::runBackup()
 {
     if (m_currentItem) {
+        const QStringList errors = m_currentItem->errors();
+        if (!errors.empty()) {
+            m_errors.push_back(std::make_pair(m_currentItem->id(), errors));
+        }
+        const QStringList warnings = m_currentItem->warnings();
+        if (!warnings.empty()) {
+            m_warnings.push_back(std::make_pair(m_currentItem->id(), warnings));
+        }
+
         m_currentItem->deleteLater();
         m_currentItem = nullptr;
     }
 
     if (m_items.empty()) {
-        tarDbs();
+        changeOwner();
         return;
     }
 
     m_currentItem = m_items.dequeue();
     connect(m_currentItem, &AbstractBackup::finished, this, &BackupManager::runBackup);
     m_currentItem->start();
-}
-
-void BackupManager::tarDbs()
-{
-    QFileInfo dbDirFi(m_tempDir.path() + QLatin1String("/Databases"));
-
-    if (dbDirFi.exists() && dbDirFi.isDir()) {
-        const QString tarName = m_depot + QLatin1String("/Databases-") + QDate::currentDate().toString(QStringLiteral("yyyyMMdd")) + QLatin1String(".tar");
-
-        auto tar = new QProcess(this);
-        tar->setProgram(QStringLiteral("tar"));
-        tar->setWorkingDirectory(m_tempDir.path());
-        tar->setArguments({QStringLiteral("-cf"), tarName, QStringLiteral("Databases")});
-        connect(tar, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &BackupManager::onTarDbsFinished);
-        connect(tar, &QProcess::readyReadStandardError, this, [=](){
-            qCritical("%s", tar->readAllStandardError().constData());
-        });
-        tar->start();
-    } else {
-        onTarDbsFinished();
-    }
-}
-
-void BackupManager::onTarDbsFinished()
-{
-    changeOwner();
 }
 
 void BackupManager::changeOwner()
@@ -157,11 +140,7 @@ void BackupManager::changeOwner()
 void BackupManager::doChangeOwner()
 {
     if (m_changeOwnerQueue.empty()) {
-        const auto timeEnd = std::chrono::high_resolution_clock::now();
-        const auto timeUsed = static_cast<qint32>(std::chrono::duration_cast<std::chrono::seconds>(timeEnd - m_timeStart).count());
-        //% "Finished backup of %1 items in %2 seconds."
-        qInfo("%s", qUtf8Printable(qtTrId("SIHHURI_INFO_FINISHED_COMPLETE_BACKUP").arg(QString::number(m_enabledItemsSize), QString::number(timeUsed))));
-        QCoreApplication::exit();
+        finish();
         return;
     }
 
@@ -188,6 +167,38 @@ void BackupManager::doChangeOwner()
     } else {
         doChangeOwner();
     }
+}
+
+void BackupManager::finish()
+{
+    const auto timeEnd = std::chrono::high_resolution_clock::now();
+    const auto timeUsed = static_cast<qint32>(std::chrono::duration_cast<std::chrono::seconds>(timeEnd - m_timeStart).count());
+
+    int errorCount = 0;
+    int warningCount = 0;
+
+    if (!m_errors.empty()) {
+        for (const std::pair<QString,QStringList> &itemErrors : qAsConst(m_errors)) {
+            errorCount += itemErrors.second.size();
+        }
+    }
+
+    if (!m_warnings.empty()) {
+        for (const std::pair<QString,QStringList> &itemWarnings : qAsConst(m_warnings)) {
+            warningCount += itemWarnings.second.size();
+        }
+    }
+
+    //% "Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4"
+    const QString msg = qtTrId("SIHHURI_INFO_FINISHED_COMPLETE_BACKUP").arg(QString::number(m_enabledItemsSize), QString::number(timeUsed), QString::number(errorCount), QString::number(warningCount));
+    if (errorCount > 0) {
+        qCritical("%s", qUtf8Printable(msg));
+    } else if (warningCount > 0) {
+        qWarning("%s", qUtf8Printable(msg));
+    } else {
+        qInfo("%s", qUtf8Printable(msg));
+    }
+    QCoreApplication::exit();
 }
 
 void BackupManager::handleError(const QString &msg, int exitCode)

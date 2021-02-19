@@ -236,8 +236,7 @@ void AbstractBackup::logError(const QString &msg)
 
 QString AbstractBackup::logMsg(const QString &msg) const
 {
-    const QString id = objectName().isEmpty() ? m_type : QStringLiteral("%1(%2)").arg(m_type, objectName());
-    const QString log = id + QLatin1String(": ") + msg;
+    const QString log = id() + QLatin1String(": ") + msg;
     return log;
 }
 
@@ -365,6 +364,22 @@ QProcess *AbstractBackup::startStopServiceOrTimer(const QString &unit, bool stop
     p->setArguments(args);
 
     return p;
+}
+
+QStringList AbstractBackup::errors() const
+{
+    return m_errors;
+}
+
+QStringList AbstractBackup::warnings() const
+{
+    return m_warnings;
+}
+
+QString AbstractBackup::id() const
+{
+    const QString id = objectName().isEmpty() ? m_type : QStringLiteral("%1(%2)").arg(m_type, objectName());
+    return id;
 }
 
 #include "moc_abstractbackup.cpp"
