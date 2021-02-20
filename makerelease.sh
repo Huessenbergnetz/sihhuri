@@ -56,7 +56,7 @@ DIR="${TMPDIR}/${PRJNAME}-${VERSION}"
 
 mkdir $DIR
 
-for SRCDIR in src translations
+for SRCDIR in src translations service
 do
     cp -r $SRCDIR $DIR
 done

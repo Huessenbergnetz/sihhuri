@@ -1,0 +1,8 @@
+[Unit]
+Description=Creates a backup of several services
+After=network.target local-fs.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sihhuri

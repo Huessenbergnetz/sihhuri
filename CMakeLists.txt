@@ -8,7 +8,7 @@ cmake_policy(SET CMP0048 NEW)
 project(sihhuri
     VERSION 0.2.0
     DESCRIPTION "Backup tool"
-    LANGUAGES CXX)
+    LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -37,5 +37,8 @@ endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 include(GNUInstallDirs)
 
+set(SYSTEMD_UNIT_DIR "${CMAKE_INSTALL_PREFIX}/lib/systemd/system" CACHE PATH "Systemd unit directory")
+
 add_subdirectory(src)
+add_subdirectory(service)
 add_subdirectory(translations)
