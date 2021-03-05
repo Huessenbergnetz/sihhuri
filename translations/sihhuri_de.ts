@@ -114,8 +114,8 @@
         <translation type="unfinished"/>
     </message>
     <message id="SIHHURI_INFO_FINISHED_COMPLETE_BACKUP">
-        <source>Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4</source>
-        <oldsource>Finished backup of %1 items in %2 seconds.</oldsource>
+        <source>Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4, Files: %5, Size: %6</source>
+        <oldsource>Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4</oldsource>
         <translation type="unfinished"/>
     </message>
     <message id="SIHHURI_CRIT_FAILED_OPEN_DUMPFILE_WRITE">
@@ -145,7 +145,8 @@
         <translation type="unfinished"/>
     </message>
     <message id="SIHHURI_INFO_FINISHED_RSYNC">
-        <source>Finished syncing %1 in %2 milliseconds.</source>
+        <source>Finished syncing %1 in %2 milliseconds: Files: %3, Size: %4</source>
+        <oldsource>Finished syncing %1 in %2 milliseconds.</oldsource>
         <translation type="unfinished"/>
     </message>
     <message id="SIHHURI_CRIT_FAILED_RSYNC">
@@ -255,6 +256,10 @@
     </message>
     <message id="SIHHURI_CRIT_FAILED_CREATE_DBDIR">
         <source>Failed to create database directory.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message id="SIHHURI_INFO_CURRENT_DIR_SIZE">
+        <source>Current size of the backed up data for %1: Files: %2, Size: %3</source>
         <translation type="unfinished"/>
     </message>
 </context>

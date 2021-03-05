@@ -17,6 +17,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDate>
+#include <QLocalServer>
 
 BackupManager::BackupManager(const QVariantMap &config, const QStringList &types, QObject *parent)
     : QObject(parent),
@@ -112,6 +113,11 @@ void BackupManager::runBackup()
             m_warnings.push_back(std::make_pair(m_currentItem->id(), warnings));
         }
 
+        const std::vector<BackupStats> stats = m_currentItem->statistics();
+        for (const BackupStats &s : stats) {
+            m_stats.push_back(s);
+        }
+
         m_currentItem->deleteLater();
         m_currentItem = nullptr;
     }
@@ -189,8 +195,19 @@ void BackupManager::finish()
         }
     }
 
-    //% "Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4"
-    const QString msg = qtTrId("SIHHURI_INFO_FINISHED_COMPLETE_BACKUP").arg(QString::number(m_enabledItemsSize), QString::number(timeUsed), QString::number(errorCount), QString::number(warningCount));
+    qint64 files = 0;
+    qint64 size = 0;
+
+    for (const BackupStats &stats : m_stats) {
+        files += stats.filesAfter;
+        size += stats.sizeAfter;
+        size += stats.compressedSize;
+    }
+
+    QLocale locale;
+
+    //% "Finished backup of %1 items in %2 seconds. Errors: %3, Warnings: %4, Files: %5, Size: %6"
+    const QString msg = qtTrId("SIHHURI_INFO_FINISHED_COMPLETE_BACKUP").arg(QString::number(m_enabledItemsSize), QString::number(timeUsed), QString::number(errorCount), QString::number(warningCount), locale.toString(files), locale.formattedDataSize(size));
     if (errorCount > 0) {
         qCritical("%s", qUtf8Printable(msg));
     } else if (warningCount > 0) {

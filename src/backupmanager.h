@@ -6,6 +6,7 @@
 #ifndef BACKUPMANAGER_H
 #define BACKUPMANAGER_H
 
+#include "abstractbackup.h"
 #include <QObject>
 #include <QVariantMap>
 #include <QTemporaryDir>
@@ -15,8 +16,6 @@
 #include <chrono>
 #include <utility>
 #include <vector>
-
-class AbstractBackup;
 
 class BackupManager : public QObject
 {
@@ -37,6 +36,7 @@ private:
     void finish();
     void handleError(const QString &msg, int exitCode);
 
+    std::vector<BackupStats> m_stats;
     std::vector<std::pair<QString, QStringList>> m_errors;
     std::vector<std::pair<QString, QStringList>> m_warnings;
     QVariantMap m_config;

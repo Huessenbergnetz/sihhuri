@@ -137,6 +137,10 @@ void DbBackup::backupMySql()
         return;
     }
 
+    m_currentStats = BackupStats();
+    m_currentStats.type = BackupStats::MySQL;
+    m_currentStats.id = dbName();
+
     const QString defFileArg = QLatin1String("--defaults-file=") + m_dbConfigFile.fileName();
     QStringList dumpArgs({defFileArg, dbName()});
 
@@ -168,8 +172,10 @@ void DbBackup::onDatabaseDumpFinished(int exitCode, QProcess::ExitStatus exitSta
     m_dumpFile->close();
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
         const qint64 timeUsed = getStepTimeUsed();
+        m_currentStats.timeUsed += timeUsed;
         QLocale locale;
         QFileInfo fi(m_dumpFile->fileName());
+        m_currentStats.uncompressedSize = fi.size();
         //% "Finished dump of MySQL/MariaDB database %1 with %2 in %3 milliseconds."
         logInfo(qtTrId("SIHHURI_INFO_FINISHED_DUMP_MYSQL").arg(dbName(), locale.formattedDataSize(fi.size()), locale.toString(timeUsed)));
         hashDatabase();
@@ -191,6 +197,7 @@ void DbBackup::hashDatabase()
         const QByteArray hash = hasher.result();
         const QString sha256sum = QString::fromLatin1(hash.toHex());
         const qint64 timeUsed = getStepTimeUsed();
+        m_currentStats.timeUsed += timeUsed;
 
         QLocale locale;
         //% "Calculated SHA256 hash sum of %1 in %2 milliseconds: %3"
@@ -248,9 +255,12 @@ void DbBackup::onCompressDatabaseFinished(int exitCode, QProcess::ExitStatus exi
         delete m_dumpFile;
         m_dumpFile = nullptr;
         const qint64 timeUsed = getStepTimeUsed();
+        m_currentStats.timeUsed += timeUsed;
+        m_currentStats.compressedSize = xzFi.size();
         QLocale locale;
         //% "Finished compression of MySQL/MariaDB database dump %1 with %2 in %3 milliseconds."
         logInfo(qtTrId("SIHHURI_INFO_FINISHED_COMPRESS_MYSQL").arg(dbName(), locale.formattedDataSize(xzFi.size()), locale.toString(timeUsed)));
+        addStatistic(m_currentStats);
     } else {
         //% "Failed to compress MySQL/MariaDB database dump %1."
         logWarning(qtTrId("SIHHURI_CRIT_FAILED_FAILED_COMPRESS_MYSQL").arg(dbName()));

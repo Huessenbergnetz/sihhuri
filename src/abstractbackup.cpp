@@ -167,6 +167,18 @@ void AbstractBackup::backupDirectories()
     //% "Started syncing %1."
     logInfo(qtTrId("SIHHURI_INFO_START_RSYNC").arg(dir));
 
+    m_currentStats = BackupStats();
+    m_currentStats.type = BackupStats::Directory;
+    m_currentStats.id = dir;
+
+    const std::pair<qint64,qint64> dirSizeBefore = getDirSize(target() + dir);
+    m_currentStats.filesBefore = dirSizeBefore.first;
+    m_currentStats.sizeBefore = dirSizeBefore.second;
+
+    QLocale locale;
+    //% "Current size of the backed up data for %1: Files: %2, Size: %3"
+    logInfo(qtTrId("SIHHURI_INFO_CURRENT_DIR_SIZE").arg(dir, locale.toString(m_currentStats.filesBefore), locale.formattedDataSize(m_currentStats.sizeBefore)));
+
     auto rsync = new QProcess(this);
     rsync->setProgram(QStringLiteral("rsync"));
     rsync->setArguments({QStringLiteral("-aR"), QStringLiteral("--delete"), QStringLiteral("--delete-after"), dir, target()});
@@ -175,10 +187,14 @@ void AbstractBackup::backupDirectories()
     });
     connect(rsync, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-            const qint64 timeUsed = getStepTimeUsed();
+            const std::pair<qint64,qint64> dirSizeAfter = getDirSize(dir);
+            m_currentStats.filesAfter = dirSizeAfter.first;
+            m_currentStats.sizeAfter = dirSizeAfter.second;
+            m_currentStats.timeUsed = getStepTimeUsed();
             QLocale locale;
-            //% "Finished syncing %1 in %2 milliseconds."
-            logInfo(qtTrId("SIHHURI_INFO_FINISHED_RSYNC").arg(dir, locale.toString(timeUsed)));
+            //% "Finished syncing %1 in %2 milliseconds: Files: %3, Size: %4"
+            logInfo(qtTrId("SIHHURI_INFO_FINISHED_RSYNC").arg(dir, locale.toString(m_currentStats.timeUsed), locale.toString(m_currentStats.filesAfter), locale.formattedDataSize(m_currentStats.sizeAfter)));
+            addStatistic(m_currentStats);
         } else {
             //% "Failed to sync %1."
             logError(qtTrId("SIHHURI_CRIT_FAILED_RSYNC").arg(dir));
@@ -210,6 +226,16 @@ void AbstractBackup::startTimer()
         emitFinished();
     });
     systemctl->start();
+}
+
+std::vector<BackupStats> AbstractBackup::statistics() const
+{
+    return m_stats;
+}
+
+void AbstractBackup::addStatistic(const BackupStats &statistic)
+{
+    m_stats.push_back(statistic);
 }
 
 void AbstractBackup::logInfo(const QString &msg) const
@@ -275,7 +301,7 @@ std::pair<qint64, qint64> AbstractBackup::getDirSize(const QString &path) const
         size += fi.size();
     }
 
-    const auto childDirs = dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot|QDir::System|QDir::Hidden);
+    const auto childDirs = dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot|QDir::System|QDir::Hidden|QDir::NoSymLinks);
     for (const QString &child : childDirs) {
         const auto ret = getDirSize(path + QLatin1Char('/') + child);
         entries += ret.first;

@@ -11,8 +11,28 @@
 #include <QQueue>
 #include <chrono>
 #include <utility>
+#include <vector>
 
 class QProcess;
+
+struct BackupStats {
+    enum Type : quint8 {
+        Undefined,
+        Directory,
+        MySQL,
+        PostgreSQL
+    };
+
+    Type type = Undefined;
+    QString id;
+    qint64 filesBefore = 0;
+    qint64 sizeBefore = 0;
+    qint64 filesAfter = 0;
+    qint64 sizeAfter = 0;
+    qint64 uncompressedSize = 0;
+    qint64 compressedSize = 0;
+    qint64 timeUsed = 0;
+};
 
 class AbstractBackup : public QObject
 {
@@ -27,6 +47,7 @@ public:
     QStringList errors() const;
     QStringList warnings() const;
     QString id() const;
+    std::vector<BackupStats> statistics() const;
 
 protected:
     virtual bool loadConfiguration() = 0;
@@ -66,7 +87,11 @@ protected:
     void stopTimer();
     void startTimer();
 
+    void addStatistic(const BackupStats &statistic);
+
     QProcess* startStopServiceOrTimer(const QString &unit, bool stop = false);
+
+    BackupStats m_currentStats;
 
 signals:
     void backupDirectoriesFinished(QPrivateSignal);
@@ -89,6 +114,7 @@ private:
     QString m_user;
     QString m_timer;
     QQueue<QString> m_dirQueue;
+    std::vector<BackupStats> m_stats;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_timeStart;
     std::chrono::time_point<std::chrono::high_resolution_clock> m_stepTimeStart;
     int m_maxTryIsServiceActive = 30;
