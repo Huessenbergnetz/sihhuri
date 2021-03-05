@@ -32,7 +32,7 @@ endif(${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_BINARY_DIR})
 option(ENABLE_MAINTAINER_CFLAGS "Enable maintainer CFlags" OFF)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "funchotorn default install prefix" FORCE)
+  set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "sihhuri default install prefix" FORCE)
 endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 include(GNUInstallDirs)
