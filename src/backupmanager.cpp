@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QDate>
 #include <QLocalServer>
+#include <QStandardPaths>
 
 BackupManager::BackupManager(const QVariantMap &config, const QStringList &types, QObject *parent)
     : QObject(parent),
@@ -53,6 +54,13 @@ void BackupManager::doStart()
     if (Q_UNLIKELY(items.empty())) {
         //% "No backup items have been configured."
         handleError(qtTrId("SIHHURI_CRIT_NO_BACKUP_ITEMS_CONFIGURED"), 6);
+        return;
+    }
+
+    const QString pixzExecPath = QStandardPaths::findExecutable(QStringLiteral("pixz"));
+    if (Q_UNLIKELY(pixzExecPath.isEmpty())) {
+        //% "Can not find pixz executable to compress database dump files."
+        handleError(qtTrId("SIHHURI_CRIT_NO_PIXZ_EXECUTABE"), 6);
         return;
     }
 
