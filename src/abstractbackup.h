@@ -59,6 +59,7 @@ protected:
 
     void backupDirectories();
 
+    void logDebug(const QString &msg) const;
     void logInfo(const QString &msg) const;
     void logWarning(const QString &msg);
     void logCritical(const QString &msg) const;

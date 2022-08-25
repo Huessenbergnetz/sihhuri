@@ -238,6 +238,11 @@ void AbstractBackup::addStatistic(const BackupStats &statistic)
     m_stats.push_back(statistic);
 }
 
+void AbstractBackup::logDebug(const QString &msg) const
+{
+    qDebug("%s", qUtf8Printable(logMsg(msg)));
+}
+
 void AbstractBackup::logInfo(const QString &msg) const
 {
     qInfo("%s", qUtf8Printable(logMsg(msg)));
