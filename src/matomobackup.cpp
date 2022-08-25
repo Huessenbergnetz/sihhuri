@@ -44,7 +44,9 @@ bool MatomoBackup::loadConfiguration()
 
     bool inDatabaseSection = false;
 
-    QTextStream s(&configFile);
+    QTextStream s;
+    s.setDevice(&configFile);
+    s.setCodec("UTF-8");
     QString line;
     while (s.readLineInto(&line)) {
         if (line.contains(QLatin1String("[database]"))) {
