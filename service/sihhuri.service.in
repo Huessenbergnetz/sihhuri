@@ -6,3 +6,4 @@ After=network.target local-fs.target
 Type=oneshot
 User=root
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/sihhuri
+PrivateTmp=true
