@@ -231,23 +231,23 @@ void DbBackup::compressDatabase()
     logInfo(qtTrId("SIHHURI_INFO_START_COMPRESS_MYSQL").arg(dumpFileFi.fileName()));
     setStepStartTime();
 
-    auto pixz = new QProcess(this);
-    pixz->setWorkingDirectory(dbDirPath());
-    pixz->setProgram(QStringLiteral("pixz"));
+    auto xz = new QProcess(this);
+    xz->setWorkingDirectory(dbDirPath());
+    xz->setProgram(QStringLiteral("xz"));
 
-    const QString xzFileName  = dumpFileFi.fileName() + QLatin1String(".pxz");
-    pixz->setArguments({dumpFileFi.fileName(), xzFileName});
-    connect(pixz, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DbBackup::onCompressDatabaseFinished);
-    connect(pixz, &QProcess::readyReadStandardError, this, [=](){
-        logCritical(QStringLiteral("pixz: %1").arg(QString::fromUtf8(pixz->readAllStandardError())));
+//    const QString xzFileName  = dumpFileFi.fileName() + QLatin1String(".xz");
+    xz->setArguments({QStringLiteral("-k"), dumpFileFi.fileName()});
+    connect(xz, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DbBackup::onCompressDatabaseFinished);
+    connect(xz, &QProcess::readyReadStandardError, this, [=](){
+        logCritical(QStringLiteral("xz: %1").arg(QString::fromUtf8(xz->readAllStandardError())));
     });
-    pixz->start();
+    xz->start();
 }
 
 void DbBackup::onCompressDatabaseFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
-        QFileInfo xzFi(m_dumpFile->fileName() + QLatin1String(".pxz"));
+        QFileInfo xzFi(m_dumpFile->fileName() + QLatin1String(".xz"));
         if (!m_dumpFile->remove()) {
             //% "Failed to remove uncompressed MySQL/MariaDB database dump file %1."
             logWarning(qtTrId("SIHHURI_WARN_FAILED_REMOVE_UNCOMPRESSED_MYSQL_DUMP_FILE").arg(m_dumpFile->fileName()));
