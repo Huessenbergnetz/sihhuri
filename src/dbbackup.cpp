@@ -235,8 +235,11 @@ void DbBackup::compressDatabase()
     xz->setWorkingDirectory(dbDirPath());
     xz->setProgram(QStringLiteral("xz"));
 
-//    const QString xzFileName  = dumpFileFi.fileName() + QLatin1String(".xz");
-    xz->setArguments({QStringLiteral("-k"), dumpFileFi.fileName()});
+    xz->setArguments({QStringLiteral("-k"),     // keep input file
+                      QStringLiteral("-f"),     // force overwrite output file
+                      QStringLiteral("-6"),     // compression preset
+                      QStringLiteral("-T 0"),   // use all available cores
+                      dumpFileFi.fileName()});
     connect(xz, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DbBackup::onCompressDatabaseFinished);
     connect(xz, &QProcess::readyReadStandardError, this, [=](){
         logCritical(QStringLiteral("xz: %1").arg(QString::fromUtf8(xz->readAllStandardError())));
