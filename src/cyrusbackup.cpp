@@ -114,8 +114,7 @@ void CyrusBackup::backupMailboxes()
 
 void CyrusBackup::stopService()
 {
-    const QString service = m_service + QLatin1String(".service");
-    auto systemctl = startStopServiceOrTimer(service, true);
+    auto systemctl = stopSystemdService(m_service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         const int waitSeconds = 10;
         //% "Waiting %1 seconds for Cyrus to completely shut down."
@@ -129,8 +128,7 @@ void CyrusBackup::stopService()
 
 void CyrusBackup::startService()
 {
-    const QString service = m_service + QLatin1String(".service");
-    auto systemctl = startStopServiceOrTimer(service);
+    auto systemctl = startSystemdService(m_service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         disableMaintenance();
     });

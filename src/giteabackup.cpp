@@ -139,8 +139,7 @@ void GiteaBackup::doBackup()
 
 void GiteaBackup::stopService()
 {
-    const QString service = m_service + QLatin1String(".service");
-    auto systemctl = startStopServiceOrTimer(service, true);
+    auto systemctl = stopSystemdService(m_service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         backupDatabase();
     });
@@ -165,8 +164,7 @@ void GiteaBackup::onBackupDirectoriesFinished()
 
 void GiteaBackup::startService()
 {
-    const QString service = m_service + QLatin1String(".service");
-    auto systemctl = startStopServiceOrTimer(service);
+    auto systemctl = startSystemdService(m_service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         disableMaintenance();
     });

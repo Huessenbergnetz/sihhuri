@@ -131,8 +131,7 @@ void AbstractBackup::isTimerServiceActive()
 
 void AbstractBackup::stopTimer()
 {
-    const QString timer = m_timer + QLatin1String(".timer");
-    auto systemctl = startStopServiceOrTimer(timer, true);
+    auto systemctl = stopSystemdTimer(m_timer);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         enableMaintenance();
     });
@@ -212,8 +211,7 @@ void AbstractBackup::startTimer()
         return;
     }
 
-    const QString timer = m_timer + QLatin1String(".timer");
-    auto systemctl = startStopServiceOrTimer(timer);
+    auto systemctl = startSystemdTimer(m_timer);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
         emitFinished();
     });
