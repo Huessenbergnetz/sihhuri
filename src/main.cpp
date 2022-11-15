@@ -173,7 +173,11 @@ int main(int argc, char *argv[])
     if (parser.isSet(type)) {
         const QString types = parser.value(type);
         if (!types.isEmpty()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+            typesList = types.split(QLatin1Char(','), Qt::SkipEmptyParts);
+#else
             typesList = types.split(QLatin1Char(','), QString::SkipEmptyParts);
+#endif
         }
     }
 
