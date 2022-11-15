@@ -134,10 +134,6 @@ void AbstractBackup::stopTimer()
     const QString timer = m_timer + QLatin1String(".timer");
     auto systemctl = startStopServiceOrTimer(timer, true);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            //% "Failed to stop %1."
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_STOP_TIMER_OR_SERVICE").arg(timer));
-        }
         enableMaintenance();
     });
     systemctl->start();
@@ -219,10 +215,6 @@ void AbstractBackup::startTimer()
     const QString timer = m_timer + QLatin1String(".timer");
     auto systemctl = startStopServiceOrTimer(timer);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            //% "Failed to start %1."
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_START_TIMER_OR_SERVICE").arg(timer));
-        }
         emitFinished();
     });
     systemctl->start();
@@ -400,12 +392,26 @@ QProcess *AbstractBackup::startStopServiceOrTimer(const QString &unit, bool stop
 
 QProcess* AbstractBackup::startServiceOrTimer(const QString &unit)
 {
-    return startStopServiceOrTimer(unit, false);
+    auto systemctl = startStopServiceOrTimer(unit, false);
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
+            //% "Failed to start %1."
+            logWarning(qtTrId("SIHHURI_WARN_FAILED_START_TIMER_OR_SERVICE").arg(unit));
+        }
+    });
+    return systemctl;
 }
 
 QProcess* AbstractBackup::stopServiceOrTimer(const QString &unit)
 {
-    return startStopServiceOrTimer(unit, true);
+    auto systemctl = startStopServiceOrTimer(unit, true);
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
+            //% "Failed to stop %1."
+            logWarning(qtTrId("SIHHURI_WARN_FAILED_STOP_TIMER_OR_SERVICE").arg(unit));
+        }
+    });
+    return systemctl;
 }
 
 QProcess* AbstractBackup::startSystemdService(const QString &unit)

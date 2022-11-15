@@ -117,9 +117,6 @@ void CyrusBackup::stopService()
     const QString service = m_service + QLatin1String(".service");
     auto systemctl = startStopServiceOrTimer(service, true);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_STOP_TIMER_OR_SERVICE").arg(service));
-        }
         const int waitSeconds = 10;
         //% "Waiting %1 seconds for Cyrus to completely shut down."
         logInfo(qtTrId("SIHHURI_INFO_WAIT_CYRUS_SHUTDOWN").arg(waitSeconds));
@@ -135,9 +132,6 @@ void CyrusBackup::startService()
     const QString service = m_service + QLatin1String(".service");
     auto systemctl = startStopServiceOrTimer(service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_START_TIMER_OR_SERVICE").arg(service));
-        }
         disableMaintenance();
     });
     systemctl->start();

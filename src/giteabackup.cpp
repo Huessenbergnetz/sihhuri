@@ -142,9 +142,6 @@ void GiteaBackup::stopService()
     const QString service = m_service + QLatin1String(".service");
     auto systemctl = startStopServiceOrTimer(service, true);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_STOP_TIMER_OR_SERVICE").arg(service));
-        }
         backupDatabase();
     });
     systemctl->start();
@@ -171,9 +168,6 @@ void GiteaBackup::startService()
     const QString service = m_service + QLatin1String(".service");
     auto systemctl = startStopServiceOrTimer(service);
     connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
-        if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
-            logWarning(qtTrId("SIHHURI_WARN_FAILED_START_TIMER_OR_SERVICE").arg(service));
-        }
         disableMaintenance();
     });
     systemctl->start();
