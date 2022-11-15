@@ -148,9 +148,9 @@ protected:
      * file name without extension like \c gitea. The extension \c .service will automatically
      * be added.
      *
-     * \sa startStopServiceOrTimer(), stopService()
+     * \sa startStopServiceOrTimer(), stopSystemdService()
      */
-    QProcess* startService(const QString &unit);
+    QProcess* startSystemdService(const QString &unit);
     /*!
      * \brief Stops a systemd service unit.
      * \param unit  Name of the systemd service without extension.
@@ -161,9 +161,9 @@ protected:
      * file name without extension like \c gitea. The extension \c .service will automatically
      * be added.
      *
-     * \sa startStopServiceOrTimer(), startService()
+     * \sa startStopServiceOrTimer(), startSystemdService()
      */
-    QProcess* stopService(const QString &unit);
+    QProcess* stopSystemdService(const QString &unit);
     /*!
      * \brief Starts a systemd timer unit.
      * \param unit  Name of the systemd timer without extension.
@@ -174,9 +174,9 @@ protected:
      * file name without extension like \c wp-cron. The extension \c .timer will automatically
      * be added.
      *
-     * \sa startStopServiceOrTimer(), stopTimer()
+     * \sa startStopServiceOrTimer(), stopSystemdTimer()
      */
-    QProcess* startTimer(const QString &unit);
+    QProcess* startSystemdTimer(const QString &unit);
     /*!
      * \brief Stops a systemd timer unit.
      * \param unit  Name of the systemd timer without extension.
@@ -187,9 +187,9 @@ protected:
      * file name without extension like \c wp-cron. The extension \c .timer will automatically
      * be added.
      *
-     * \sa startStopServiceOrTimer(), startTimer()
+     * \sa startStopServiceOrTimer(), startSystemdTimer()
      */
-    QProcess* stopTimer(const QString &unit);
+    QProcess* stopSystemdTimer(const QString &unit);
 
     BackupStats m_currentStats;
 
