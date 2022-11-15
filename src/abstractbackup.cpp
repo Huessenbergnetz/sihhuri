@@ -397,6 +397,41 @@ QProcess *AbstractBackup::startStopServiceOrTimer(const QString &unit, bool stop
     return p;
 }
 
+
+QProcess* AbstractBackup::startServiceOrTimer(const QString &unit)
+{
+    return startStopServiceOrTimer(unit, false);
+}
+
+QProcess* AbstractBackup::stopServiceOrTimer(const QString &unit)
+{
+    return startStopServiceOrTimer(unit, true);
+}
+
+QProcess* AbstractBackup::startService(const QString &unit)
+{
+    const QString _unit = unit + QLatin1String(".service");
+    return startServiceOrTimer(_unit);
+}
+
+QProcess* AbstractBackup::stopService(const QString &unit)
+{
+    const QString _unit = unit + QLatin1String(".service");
+    return stopServiceOrTimer(_unit);
+}
+
+QProcess* AbstractBackup::startTimer(const QString &unit)
+{
+    const QString _unit = unit + QLatin1String(".timer");
+    return startServiceOrTimer(_unit);
+}
+
+QProcess* AbstractBackup::stopTimer(const QString &unit)
+{
+    const QString _unit = unit + QLatin1String(".timer");
+    return stopServiceOrTimer(_unit);
+}
+
 QStringList AbstractBackup::errors() const
 {
     return m_errors;

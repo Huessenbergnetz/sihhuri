@@ -90,7 +90,106 @@ protected:
 
     void addStatistic(const BackupStats &statistic);
 
+    /*!
+     * \brief Starts or stops systemd units.
+     * \param unit  Name of the systemd service or timer unit name.
+     * \param stop  Set this to \c true to stop the unit.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to start or stop systemd timer or service units and returns
+     * a pointer to the created object. The creating object will be the parent. \a unit has to
+     * be the unit file name like \c gitea.service or \c wp-cron.timer.
+     *
+     * \par Example
+     * \code{.cpp}
+     * auto service = startStopServiceOrTimer("gitea.service", false);
+     * connect(service, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+     *     if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
+     *         // do stuff
+     *     } else {
+     *         // do other stuff
+     *     }
+     * });
+     * service->start()
+     * \endcode
+     */
     QProcess* startStopServiceOrTimer(const QString &unit, bool stop = false);
+    /*!
+     * \brief Starts a systemd unit.
+     * \param unit  Name of the systemd service or timer unit.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to start a systemd timer or service unit and returns a pointer
+     * to the created object. The creating object will be the parent. \a unit has to be the
+     * unit file name like \c gitea.service or \c wp-cron.timer.
+     *
+     * \sa startStopServiceOrTimer(), stopServiceOrTimer()
+     */
+    QProcess* startServiceOrTimer(const QString &unit);
+    /*!
+     * \brief Stops a systemd unit.
+     * \param unit  Name of the systemd service or timer unit.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to stop a systemd timer or service unit and returns a pointer
+     * to the created object. The creating object will be the parent. \a unit has to be the
+     * unit file name like \c gitea.service or \c wp-cron.timer.
+     *
+     * \sa startStopServiceOrTimer(), startServiceOrTimer()
+     */
+    QProcess* stopServiceOrTimer(const QString &unit);
+    /*!
+     * \brief Starts a systemd service unit.
+     * \param unit  Name of the systemd service without extension.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to start a systemd service unit and returns a pointer to
+     * the created object. The creating object will be the parent. \a unit has to be the unit
+     * file name without extension like \c gitea. The extension \c .service will automatically
+     * be added.
+     *
+     * \sa startStopServiceOrTimer(), stopService()
+     */
+    QProcess* startService(const QString &unit);
+    /*!
+     * \brief Stops a systemd service unit.
+     * \param unit  Name of the systemd service without extension.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to stop a systemd service unit and returns a pointer to
+     * the created object. The creating object will be the parent. \a unit has to be the unit
+     * file name without extension like \c gitea. The extension \c .service will automatically
+     * be added.
+     *
+     * \sa startStopServiceOrTimer(), startService()
+     */
+    QProcess* stopService(const QString &unit);
+    /*!
+     * \brief Starts a systemd timer unit.
+     * \param unit  Name of the systemd timer without extension.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to start a systemd timer unit and returns a pointer to
+     * the created object. The creating object will be the parent. \a unit has to be the unit
+     * file name without extension like \c wp-cron. The extension \c .timer will automatically
+     * be added.
+     *
+     * \sa startStopServiceOrTimer(), stopTimer()
+     */
+    QProcess* startTimer(const QString &unit);
+    /*!
+     * \brief Stops a systemd timer unit.
+     * \param unit  Name of the systemd timer without extension.
+     * \return Pointer to a QProcess object.
+     *
+     * Creates a QProcess object to stop a systemd timer unit and returns a pointer to
+     * the created object. The creating object will be the parent. \a unit has to be the unit
+     * file name without extension like \c wp-cron. The extension \c .timer will automatically
+     * be added.
+     *
+     * \sa startStopServiceOrTimer(), startTimer()
+     */
+    QProcess* stopTimer(const QString &unit);
 
     BackupStats m_currentStats;
 
