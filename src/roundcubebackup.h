@@ -9,17 +9,17 @@
 #include "dbbackup.h"
 #include <QObject>
 
-class RoundcubeBackup : public DbBackup
+class RoundcubeBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit RoundcubeBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~RoundcubeBackup() override;
+    ~RoundcubeBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
 private slots:
     void onBackupDatabaseFinished();

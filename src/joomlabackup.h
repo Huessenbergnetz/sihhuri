@@ -9,20 +9,20 @@
 #include "dbbackup.h"
 #include <QObject>
 
-class JoomlaBackup : public DbBackup
+class JoomlaBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit JoomlaBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~JoomlaBackup() override;
+    ~JoomlaBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
-    void enableMaintenance() override;
-    void disableMaintenance() override;
+    void enableMaintenance() final;
+    void disableMaintenance() final;
 
 private slots:
     void onBackupDatabaseFinished();

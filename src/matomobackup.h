@@ -9,20 +9,20 @@
 #include "dbbackup.h"
 #include <QObject>
 
-class MatomoBackup : public DbBackup
+class MatomoBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit MatomoBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~MatomoBackup() override;
+    ~MatomoBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
-    void enableMaintenance() override;
-    void disableMaintenance() override;
+    void enableMaintenance() final;
+    void disableMaintenance() final;
 
 private slots:
     void onBackupDatabaseFinished();

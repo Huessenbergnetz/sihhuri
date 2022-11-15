@@ -10,20 +10,20 @@
 #include <QObject>
 #include <QQueue>
 
-class NextcloudBackup : public DbBackup
+class NextcloudBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit NextcloudBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~NextcloudBackup() override;
+    ~NextcloudBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
-    void enableMaintenance() override;
-    void disableMaintenance() override;
+    void enableMaintenance() final;
+    void disableMaintenance() final;
 
 private slots:
     void onBackupDatabaseFinished();

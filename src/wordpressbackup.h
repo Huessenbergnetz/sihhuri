@@ -9,20 +9,20 @@
 #include "dbbackup.h"
 #include <QObject>
 
-class WordPressBackup : public DbBackup
+class WordPressBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit WordPressBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~WordPressBackup() override;
+    ~WordPressBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
-    void enableMaintenance() override;
-    void disableMaintenance() override;
+    void enableMaintenance() final;
+    void disableMaintenance() final;
 
 private slots:
     void onBackupDatabaseFinished();

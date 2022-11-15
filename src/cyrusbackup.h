@@ -9,17 +9,17 @@
 #include "abstractbackup.h"
 #include <QObject>
 
-class CyrusBackup : public AbstractBackup
+class CyrusBackup final : public AbstractBackup
 {
     Q_OBJECT
 public:
     explicit CyrusBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~CyrusBackup() override;
+    ~CyrusBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
 private slots:
     void onBackupDirectoriesFinished();

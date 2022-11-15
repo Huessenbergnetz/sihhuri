@@ -9,17 +9,17 @@
 #include "dbbackup.h"
 #include <QObject>
 
-class GiteaBackup : public DbBackup
+class GiteaBackup final : public DbBackup
 {
     Q_OBJECT
 public:
     explicit GiteaBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent = nullptr);
-    ~GiteaBackup() override;
+    ~GiteaBackup() final;
 
 protected:
-    bool loadConfiguration() override;
+    bool loadConfiguration() final;
 
-    void doBackup() override;
+    void doBackup() final;
 
 private slots:
     void onBackupDatabaseFinished();
