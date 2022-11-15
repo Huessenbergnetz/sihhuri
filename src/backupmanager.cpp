@@ -57,9 +57,9 @@ void BackupManager::doStart()
         return;
     }
 
-    const QString pixzExecPath = QStandardPaths::findExecutable(QStringLiteral("pixz"));
-    if (Q_UNLIKELY(pixzExecPath.isEmpty())) {
-        //% "Can not find pixz executable to compress database dump files."
+    const QString xzExecPath = QStandardPaths::findExecutable(QStringLiteral("xz"));
+    if (Q_UNLIKELY(xzExecPath.isEmpty())) {
+        //% "Can not find xz executable to compress database dump files."
         handleError(qtTrId("SIHHURI_CRIT_NO_PIXZ_EXECUTABE"), 6);
         return;
     }
