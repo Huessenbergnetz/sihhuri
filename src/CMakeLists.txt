@@ -33,7 +33,7 @@ target_link_libraries(sihhuri
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
-        SimpleMail::Core
+        # SimpleMail::Core
         ${SYSTEMD_LIBRARIES}
 )
 
