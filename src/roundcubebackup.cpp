@@ -74,7 +74,7 @@ bool RoundcubeBackup::loadConfiguration()
     QString host;
     if (portColonIdx > -1) {
         host = hostAndPort.left(portColonIdx);
-        port = hostAndPort.midRef(portColonIdx + 1).toInt();
+        port = hostAndPort.mid(portColonIdx + 1).toInt();
     } else {
         host = hostAndPort;
     }

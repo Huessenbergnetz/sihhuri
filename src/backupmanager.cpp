@@ -192,13 +192,13 @@ void BackupManager::finish()
     int warningCount = 0;
 
     if (!m_errors.empty()) {
-        for (const std::pair<QString,QStringList> &itemErrors : qAsConst(m_errors)) {
+        for (const std::pair<QString,QStringList> &itemErrors : std::as_const(m_errors)) {
             errorCount += itemErrors.second.size();
         }
     }
 
     if (!m_warnings.empty()) {
-        for (const std::pair<QString,QStringList> &itemWarnings : qAsConst(m_warnings)) {
+        for (const std::pair<QString,QStringList> &itemWarnings : std::as_const(m_warnings)) {
             warningCount += itemWarnings.second.size();
         }
     }
