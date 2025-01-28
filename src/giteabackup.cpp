@@ -41,11 +41,11 @@ bool GiteaBackup::loadConfiguration()
     bool dbPassFound = false;
     bool dbHostFound = false;
 
-    QRegularExpression dbTypeRegEx(QStringLiteral("^DB_TYPE\\s*=\\s*(.*)$"));
-    QRegularExpression dbNameRegEx(QStringLiteral("^NAME\\s*=\\s*(.*)$"));
-    QRegularExpression dbUserRegEx(QStringLiteral("^USER\\s*=\\s*(.*)$"));
-    QRegularExpression dbPassRegEx(QStringLiteral("^PASSWD\\s*=\\s*(.*)$"));
-    QRegularExpression dbHostRegEx(QStringLiteral("^HOST\\s*=\\s*(.*)$"));
+    static QRegularExpression dbTypeRegEx(QStringLiteral("^DB_TYPE\\s*=\\s*(.*)$"));
+    static QRegularExpression dbNameRegEx(QStringLiteral("^NAME\\s*=\\s*(.*)$"));
+    static QRegularExpression dbUserRegEx(QStringLiteral("^USER\\s*=\\s*(.*)$"));
+    static QRegularExpression dbPassRegEx(QStringLiteral("^PASSWD\\s*=\\s*(.*)$"));
+    static QRegularExpression dbHostRegEx(QStringLiteral("^HOST\\s*=\\s*(.*)$"));
 
     QTextStream s(&configFile);
     QString line;

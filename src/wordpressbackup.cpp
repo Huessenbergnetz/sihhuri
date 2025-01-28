@@ -39,10 +39,10 @@ bool WordPressBackup::loadConfiguration()
     QString dbHost = QStringLiteral("localhost");
     int dbPort = DbBackup::mysqlDefaultPort;
 
-    QRegularExpression dbNameRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_NAME[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbUserRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_USER[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbPassRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_PASSWORD[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbHostRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_HOST[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbNameRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_NAME[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbUserRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_USER[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbPassRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_PASSWORD[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbHostRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_HOST[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
 
     bool dbNameFound = false;
     bool dbUserFound = false;

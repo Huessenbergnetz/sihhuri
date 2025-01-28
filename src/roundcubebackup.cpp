@@ -33,7 +33,7 @@ bool RoundcubeBackup::loadConfiguration()
 
     QString dsn;
 
-    QRegularExpression dsnRegEx(QStringLiteral("\\$config\\[[\"']db_dsnw[\"']\\]\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dsnRegEx(QStringLiteral("\\$config\\[[\"']db_dsnw[\"']\\]\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
 
     QTextStream s(&configFile);
     QString line;

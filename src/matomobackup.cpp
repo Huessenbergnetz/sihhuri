@@ -32,10 +32,10 @@ bool MatomoBackup::loadConfiguration()
     QString dbHost = QStringLiteral("localhost");
     int dbPort = DbBackup::mysqlDefaultPort;
 
-    QRegularExpression dbNameRegEx(QStringLiteral("\\s*dbname\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbUserRegEx(QStringLiteral("\\s*username\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbPassRegEx(QStringLiteral("\\s*password\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbHostRegEx(QStringLiteral("\\s*host\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbNameRegEx(QStringLiteral("\\s*dbname\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbUserRegEx(QStringLiteral("\\s*username\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbPassRegEx(QStringLiteral("\\s*password\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbHostRegEx(QStringLiteral("\\s*host\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
 
     bool dbNameFound = false;
     bool dbUserFound = false;

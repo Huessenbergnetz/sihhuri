@@ -34,12 +34,12 @@ bool NextcloudBackup::loadConfiguration()
     QString dbHost = QStringLiteral("localhost");
     int dbPort = DbBackup::mysqlDefaultPort;
 
-    QRegularExpression dbTypeRegEx(QStringLiteral("[\"']dbtype[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbNameRegEx(QStringLiteral("[\"']dbname[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbUserRegEx(QStringLiteral("[\"']dbuser[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbPassRegEx(QStringLiteral("[\"']dbpassword[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbHostRegEx(QStringLiteral("[\"']dbhost[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbPortRegEx(QStringLiteral("[\"']dbport[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbTypeRegEx(QStringLiteral("[\"']dbtype[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbNameRegEx(QStringLiteral("[\"']dbname[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbUserRegEx(QStringLiteral("[\"']dbuser[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbPassRegEx(QStringLiteral("[\"']dbpassword[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbHostRegEx(QStringLiteral("[\"']dbhost[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbPortRegEx(QStringLiteral("[\"']dbport[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
 
     bool dbTypeFound = false;
     bool dbNameFound = false;

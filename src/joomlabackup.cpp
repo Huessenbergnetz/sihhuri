@@ -33,11 +33,11 @@ bool JoomlaBackup::loadConfiguration()
     QString dbHost = QStringLiteral("localhost");
     int dbPort = 3306; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 
-    QRegularExpression dbTypeRegEx(QStringLiteral("dbtype\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbNameRegEx(QStringLiteral("db\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbUserRegEx(QStringLiteral("user\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbPassRegEx(QStringLiteral("password\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
-    QRegularExpression dbHostRegEx(QStringLiteral("host\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbTypeRegEx(QStringLiteral("dbtype\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbNameRegEx(QStringLiteral("db\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbUserRegEx(QStringLiteral("user\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbPassRegEx(QStringLiteral("password\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression dbHostRegEx(QStringLiteral("host\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
 
     bool dbTypeFound = false;
     bool dbNameFound = false;
@@ -161,7 +161,8 @@ bool JoomlaBackup::changeMaintenance(bool activate)
 
     const QString replaceValue = activate ? QStringLiteral("$offline = '1'") : QStringLiteral("$offline = '0'");
 
-    config.replace(QRegularExpression(QStringLiteral("\\$offline\\s*=\\s*[\"'][^\"']*[\"']")), replaceValue);
+    static QRegularExpression regex(QStringLiteral("\\$offline\\s*=\\s*[\"'][^\"']*[\"']"));
+    config.replace(regex, replaceValue);
 
     if (!configFile.open(QIODevice::WriteOnly|QIODevice::Text)) {
         logError(qtTrId("SIHHURI_CRIT_FAILED_OPEN_CONFIG_FILE").arg(configFile.fileName(), configFile.errorString()));
