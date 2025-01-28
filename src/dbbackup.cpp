@@ -8,6 +8,9 @@
 #include <QDir>
 #include <QCryptographicHash>
 
+const int DbBackup::mysqlDefaultPort = 3306;
+const int DbBackup::pgsqlDefaultPort = 5432;
+
 DbBackup::DbBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent)
     : AbstractBackup(QStringLiteral("MariaDB"), QString(), target, tempDir, options, parent)
 {
@@ -40,7 +43,7 @@ bool DbBackup::loadConfiguration()
     setDbUser(option(QStringLiteral("user")).toString());
     setDbPassword(option(QStringLiteral("password")).toString());
     setDbHost(option(QStringLiteral("host"), QStringLiteral("localhost")).toString());
-    setDbPort(option(QStringLiteral("port"), 3306).toInt());
+    setDbPort(option(QStringLiteral("port"), DbBackup::mysqlDefaultPort).toInt());
 
     return true;
 }
@@ -109,7 +112,7 @@ void DbBackup::backupMySql()
             if (dbHost() != QLatin1String("localhost")) {
                 confOut << "host=\"" << dbHost() << "\"" << '\n';
             }
-            if (dbPort() != 3306) {
+            if (dbPort() != DbBackup::mysqlDefaultPort) {
                 confOut << "port=\"" << dbPort() << "\"" << '\n';
             }
         }
@@ -127,7 +130,7 @@ void DbBackup::backupMySql()
         return;
     }
 
-    m_dumpFile = new QFile(this);
+    m_dumpFile = new QFile(this); // NOLINT(cppcoreguidelines-owning-memory)
     m_dumpFile->setFileName(dbDir.absoluteFilePath(QLatin1String("mysql_") + dbName() + QLatin1String(".sql")));
 
     if (!m_dumpFile->open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate)) {
@@ -144,14 +147,14 @@ void DbBackup::backupMySql()
     const QString defFileArg = QLatin1String("--defaults-file=") + m_dbConfigFile.fileName();
     QStringList dumpArgs({defFileArg, dbName()});
 
-    auto mysqldump = new QProcess(this);
+    auto mysqldump = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     mysqldump->setProgram(QStringLiteral("mysqldump"));
     mysqldump->setArguments(dumpArgs);
     connect(mysqldump, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DbBackup::onDatabaseDumpFinished);
-    connect(mysqldump, &QProcess::readyReadStandardError, this, [=](){
+    connect(mysqldump, &QProcess::readyReadStandardError, this, [this, mysqldump](){
         logCritical(QStringLiteral("mysqldump: %1").arg(QString::fromUtf8(mysqldump->readAllStandardError())));
     });
-    connect(mysqldump, &QProcess::readyReadStandardOutput, this, [=](){
+    connect(mysqldump, &QProcess::readyReadStandardOutput, this, [this, mysqldump](){
         m_dumpFile->write(mysqldump->readAllStandardOutput());
     });
     mysqldump->start();
@@ -231,7 +234,7 @@ void DbBackup::compressDatabase()
     logInfo(qtTrId("SIHHURI_INFO_START_COMPRESS_MYSQL").arg(dumpFileFi.fileName()));
     setStepStartTime();
 
-    auto xz = new QProcess(this);
+    auto xz = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     xz->setWorkingDirectory(dbDirPath());
     xz->setProgram(QStringLiteral("xz"));
 
@@ -241,7 +244,7 @@ void DbBackup::compressDatabase()
                       QStringLiteral("-T 0"),   // use all available cores
                       dumpFileFi.fileName()});
     connect(xz, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &DbBackup::onCompressDatabaseFinished);
-    connect(xz, &QProcess::readyReadStandardError, this, [=](){
+    connect(xz, &QProcess::readyReadStandardError, this, [this, xz](){
         logCritical(QStringLiteral("xz: %1").arg(QString::fromUtf8(xz->readAllStandardError())));
     });
     xz->start();

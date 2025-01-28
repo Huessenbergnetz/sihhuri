@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+#include "returncodes.h"
 #include <QCoreApplication>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
@@ -50,8 +51,10 @@ void journaldMessageOutput(QtMsgType type, const QMessageLogContext &context, co
     const QString id = QCoreApplication::applicationName();
 
 #ifdef QT_DEBUG
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
     sd_journal_send("PRIORITY=%i", prio, "SYSLOG_FACILITY=%hhu", 1, "SYSLOG_IDENTIFIER=%s", qUtf8Printable(id), "SYSLOG_PID=%lli", QCoreApplication::applicationPid(), "MESSAGE=%s", qFormatLogMessage(type, context, msg).toUtf8().constData(), "CODE_FILE=%s", context.file, "CODE_LINE=%i", context.line, "CODE_FUNC=%s", context.function, NULL);
 #else
+    // NOLINTNEXTLINDE(cppcoreguidelines-pro-type-vararg)
     sd_journal_send("PRIORITY=%i", prio, "SYSLOG_FACILITY=%hhu", 1, "SYSLOG_IDENTIFIER=%s", qUtf8Printable(id), "SYSLOG_PID=%lli", QCoreApplication::applicationPid(), "MESSAGE=%s", qFormatLogMessage(type, context, msg).toUtf8().constData(), NULL);
 #endif
 
@@ -128,7 +131,7 @@ int main(int argc, char *argv[])
     {
         qDebug("Loading translations from %s", SIHHURI_TRANSDIR);
         const QLocale locale;
-        auto trans = new QTranslator(&a);
+        auto trans = new QTranslator(&a); // NOLINT(cppcoreguidelines-owning-memory)
         if (Q_LIKELY(trans->load(locale, QCoreApplication::applicationName(), QStringLiteral("_"), QStringLiteral(SIHHURI_TRANSDIR), QStringLiteral(".qm")))) {
             if (Q_UNLIKELY(!QCoreApplication::installTranslator(trans))) {
                 qWarning("Can not install translator for locale %s", qUtf8Printable(locale.name()));
@@ -166,22 +169,18 @@ int main(int argc, char *argv[])
 
     const QVariantMap config = loadConfig(parser.value(configPath));
     if (config.isEmpty()) {
-        return 6;
+        return static_cast<int>(RC::InvalidConfig);
     }
 
     QStringList typesList;
     if (parser.isSet(type)) {
         const QString types = parser.value(type);
         if (!types.isEmpty()) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
             typesList = types.split(QLatin1Char(','), Qt::SkipEmptyParts);
-#else
-            typesList = types.split(QLatin1Char(','), QString::SkipEmptyParts);
-#endif
         }
     }
 
-    auto bm = new BackupManager(config, typesList, &a);
+    auto bm = new BackupManager(config, typesList, &a); // NOLINT(cppcoreguidelines-owning-memory)
     bm->start();
 
     return a.exec();

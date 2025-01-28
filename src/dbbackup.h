@@ -36,22 +36,25 @@ protected:
     void backupDatabase();
 
     void setDbType(Type type);
-    Type dbType() const;
+    [[nodiscard]] Type dbType() const;
 
     void setDbName(const QString &dbName);
-    QString dbName() const;
+    [[nodiscard]] QString dbName() const;
 
     void setDbUser(const QString &dbUser);
-    QString dbUser() const;
+    [[nodiscard]] QString dbUser() const;
 
     void setDbPassword(const QString &dbPassword);
-    QString dbPassword() const;
+    [[nodiscard]] QString dbPassword() const;
 
     void setDbHost(const QString &dbHost);
-    QString dbHost() const;
+    [[nodiscard]] QString dbHost() const;
 
     void setDbPort(int dbPort);
-    int dbPort() const;
+    [[nodiscard]] int dbPort() const;
+
+    static const int mysqlDefaultPort;
+    static const int pgsqlDefaultPort;
 
 signals:
     void backupDatabaseFinished(QPrivateSignal);
@@ -75,7 +78,7 @@ private:
     int m_dbPort = 0;
     Type m_type = Invalid;
 
-    QString dbDirPath() const;
+    [[nodiscard]] QString dbDirPath() const;
     void backupMySql();
     void backupMariaDb();
     void backupPgSql();

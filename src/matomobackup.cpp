@@ -30,7 +30,7 @@ bool MatomoBackup::loadConfiguration()
 
     QString dbName, dbUser, dbPassword;
     QString dbHost = QStringLiteral("localhost");
-    int dbPort = 3306;
+    int dbPort = DbBackup::mysqlDefaultPort;
 
     QRegularExpression dbNameRegEx(QStringLiteral("\\s*dbname\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
     QRegularExpression dbUserRegEx(QStringLiteral("\\s*username\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
@@ -100,14 +100,14 @@ void MatomoBackup::enableMaintenance()
 
     QStringList args({QStringLiteral("-u"), user(), QStringLiteral("php"), QStringLiteral("console"), QStringLiteral("config:set"), QStringLiteral("General.maintenance_mode=1"), QStringLiteral("Tracker.record_statistics=0")});
 
-    auto matomo = new QProcess(this);
+    auto matomo = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     matomo->setWorkingDirectory(configFileRoot());
     matomo->setArguments(args);
     matomo->setProgram(QStringLiteral("sudo"));
-    connect(matomo, &QProcess::readyReadStandardError, this, [=](){
+    connect(matomo, &QProcess::readyReadStandardError, this, [this, matomo](){
         logCritical(QStringLiteral("console: %1").arg(QString::fromUtf8(matomo->readAllStandardError())));
     });
-    connect(matomo, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(matomo, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             logWarning(qtTrId("SIHHURI_WARN_FAILED_ENABLE_MAINTENANCE"));
         }
@@ -145,14 +145,14 @@ void MatomoBackup::disableMaintenance()
 
     QStringList args({QStringLiteral("-u"), user(), QStringLiteral("php"), QStringLiteral("console"), QStringLiteral("config:set"), QStringLiteral("General.maintenance_mode=0"), QStringLiteral("Tracker.record_statistics=1")});
 
-    auto matomo = new QProcess(this);
+    auto matomo = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     matomo->setWorkingDirectory(configFileRoot());
     matomo->setArguments(args);
     matomo->setProgram(QStringLiteral("sudo"));
-    connect(matomo, &QProcess::readyReadStandardError, this, [=](){
+    connect(matomo, &QProcess::readyReadStandardError, this, [this, matomo](){
         logCritical(QStringLiteral("console: %1").arg(QString::fromUtf8(matomo->readAllStandardError())));
     });
-    connect(matomo, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(matomo, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             logWarning(qtTrId("SIHHURI_WARN_FAILED_DISABLE_MAINTENANCE"));
         }

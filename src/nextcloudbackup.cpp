@@ -32,7 +32,7 @@ bool NextcloudBackup::loadConfiguration()
 
     QString dbName, dbUser, dbPassword, dbType;
     QString dbHost = QStringLiteral("localhost");
-    int dbPort = 3306;
+    int dbPort = DbBackup::mysqlDefaultPort;
 
     QRegularExpression dbTypeRegEx(QStringLiteral("[\"']dbtype[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
     QRegularExpression dbNameRegEx(QStringLiteral("[\"']dbname[\"']\\s*=>\\s*[\"']([^\"']+)[\"']"), QRegularExpression::CaseInsensitiveOption);
@@ -117,14 +117,14 @@ void NextcloudBackup::enableMaintenance()
 {
     logInfo(qtTrId("SIHHURI_INFO_ENABLE_MAINTENANCE"));
 
-    auto occ = new QProcess(this);
+    auto occ = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     occ->setProgram(QStringLiteral("sudo"));
     occ->setWorkingDirectory(configFileRoot());
     occ->setArguments({QStringLiteral("-u"), user(), QStringLiteral("php"), QStringLiteral("./occ"), QStringLiteral("maintenance:mode"), QStringLiteral("--on")});
-    connect(occ, &QProcess::readyReadStandardError, this, [=](){
+    connect(occ, &QProcess::readyReadStandardError, this, [this, occ](){
         logCritical(QStringLiteral("occ: %1").arg(QString::fromUtf8(occ->readAllStandardError())));
     });
-    connect(occ, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(occ, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             logWarning(qtTrId("SIHHURI_WARN_FAILED_ENABLE_MAINTENANCE"));
         }
@@ -164,14 +164,14 @@ void NextcloudBackup::disableMaintenance()
 {
     logInfo(qtTrId("SIHHURI_INFO_DISABLE_MAINTENANCE"));
 
-    auto occ = new QProcess(this);
+    auto occ = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     occ->setProgram(QStringLiteral("sudo"));
     occ->setWorkingDirectory(configFileRoot());
     occ->setArguments({QStringLiteral("-u"), user(), QStringLiteral("php"), QStringLiteral("./occ"), QStringLiteral("maintenance:mode"), QStringLiteral("--off")});
-    connect(occ, &QProcess::readyReadStandardError, this, [=](){
+    connect(occ, &QProcess::readyReadStandardError, this, [this, occ](){
         logCritical(QStringLiteral("occ: %1").arg(QString::fromUtf8(occ->readAllStandardError())));
     });
-    connect(occ, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(occ, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             logWarning(qtTrId("SIHHURI_WARN_FAILED_DISABLE_MAINTENANCE"));
         }

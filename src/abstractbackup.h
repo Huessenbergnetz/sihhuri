@@ -44,10 +44,10 @@ public:
 
     void start();
 
-    QStringList errors() const;
-    QStringList warnings() const;
-    QString id() const;
-    std::vector<BackupStats> statistics() const;
+    [[nodiscard]] QStringList errors() const;
+    [[nodiscard]] QStringList warnings() const;
+    [[nodiscard]] QString id() const;
+    [[nodiscard]] std::vector<BackupStats> statistics() const;
 
 protected:
     virtual bool loadConfiguration() = 0;
@@ -64,23 +64,23 @@ protected:
     void logWarning(const QString &msg);
     void logCritical(const QString &msg) const;
     void logError(const QString &msg);
-    QString logMsg(const QString &msg) const;
+    [[nodiscard]] QString logMsg(const QString &msg) const;
 
     void setStartTime();
-    qint64 getTimeUsed() const;
+    [[nodiscard]] qint64 getTimeUsed() const;
 
     void setStepStartTime();
-    qint64 getStepTimeUsed() const;
+    [[nodiscard]] qint64 getStepTimeUsed() const;
 
-    std::pair<qint64,qint64> getDirSize(const QString &path) const;
+    [[nodiscard]] std::pair<qint64,qint64> getDirSize(const QString &path) const;
 
-    QVariant option(const QString &key, const QVariant &defValue = QVariant()) const;
-    QString target() const;
-    QString tempDir() const;
-    QString configFilePath() const;
-    QString configFileRoot() const;
-    QString user() const;
-    QQueue<QString> directoryQueue() const;
+    [[nodiscard]] QVariant option(const QString &key, const QVariant &defValue = QVariant()) const;
+    [[nodiscard]] QString target() const;
+    [[nodiscard]] QString tempDir() const;
+    [[nodiscard]] QString configFilePath() const;
+    [[nodiscard]] QString configFileRoot() const;
+    [[nodiscard]] QString user() const;
+    [[nodiscard]] QQueue<QString> directoryQueue() const;
     void setDirectoryQueue(const QQueue<QString> &queue);
 
     void emitFinished();

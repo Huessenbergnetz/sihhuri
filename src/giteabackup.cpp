@@ -32,7 +32,7 @@ bool GiteaBackup::loadConfiguration()
 
     QString dbType, dbName, dbUser, dbPassword;
     QString dbHost = QStringLiteral("localhost");
-    int dbPort = 3306;
+    int dbPort = DbBackup::mysqlDefaultPort;
 
     bool insideDbSection = false;
     bool dbTypeFound = false;
@@ -101,10 +101,10 @@ bool GiteaBackup::loadConfiguration()
 
     if (dbType.compare(QLatin1String("mysql"), Qt::CaseInsensitive) == 0) {
         setDbType(DbBackup::MySQL);
-        dbPort = 3306;
+        dbPort = DbBackup::mysqlDefaultPort;
     } else if (dbType.compare(QLatin1String("postgres"), Qt::CaseInsensitive) == 0) {
         setDbType(DbBackup::PostgreSQL);
-        dbPort = 5432;
+        dbPort = DbBackup::pgsqlDefaultPort;
     } else if (dbType.compare(QLatin1String("sqlite3"), Qt::CaseInsensitive) == 0) {
         setDbType(DbBackup::SQLite);
         return true;
@@ -140,7 +140,7 @@ void GiteaBackup::doBackup()
 void GiteaBackup::stopService()
 {
     auto systemctl = stopSystemdService(m_service);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         backupDatabase();
     });
     systemctl->start();
@@ -165,7 +165,7 @@ void GiteaBackup::onBackupDirectoriesFinished()
 void GiteaBackup::startService()
 {
     auto systemctl = startSystemdService(m_service);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         disableMaintenance();
     });
     systemctl->start();

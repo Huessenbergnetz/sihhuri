@@ -46,21 +46,21 @@ void BackupManager::doStart()
     QFileInfo depotFi(m_depot);
     if (Q_UNLIKELY(!depotFi.exists() || !depotFi.isDir())) {
         //% "Can not find depot directory at %1."
-        handleError(qtTrId("SIHHURI_CRIT_DEPOT_NOT_FOUND").arg(m_depot), 1);
+        handleError(qtTrId("SIHHURI_CRIT_DEPOT_NOT_FOUND").arg(m_depot), RC::FileSystemError);
         return;
     }
 
     const QVariantList items = m_config.value(QStringLiteral("items")).toList();
     if (Q_UNLIKELY(items.empty())) {
         //% "No backup items have been configured."
-        handleError(qtTrId("SIHHURI_CRIT_NO_BACKUP_ITEMS_CONFIGURED"), 6);
+        handleError(qtTrId("SIHHURI_CRIT_NO_BACKUP_ITEMS_CONFIGURED"), RC::InvalidConfig);
         return;
     }
 
     const QString xzExecPath = QStandardPaths::findExecutable(QStringLiteral("xz"));
     if (Q_UNLIKELY(xzExecPath.isEmpty())) {
         //% "Can not find xz executable to compress database dump files."
-        handleError(qtTrId("SIHHURI_CRIT_NO_PIXZ_EXECUTABE"), 6);
+        handleError(qtTrId("SIHHURI_CRIT_NO_PIXZ_EXECUTABE"), RC::InvalidConfig);
         return;
     }
 
@@ -72,22 +72,31 @@ void BackupManager::doStart()
                 continue;
             }
             if (type.compare(QLatin1String("directory"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new DirectoryBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("mariadb"), Qt::CaseInsensitive) == 0 || type.compare(QLatin1String("mysql"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new DbBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("wordpress"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new WordPressBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("nextcloud"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new NextcloudBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("joomla"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new JoomlaBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("matomo"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new MatomoBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("cyrus"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new CyrusBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("roundcube"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new RoundcubeBackup(m_depot, m_tempDir.path(), o, this));
             } else if (type.compare(QLatin1String("gitea"), Qt::CaseInsensitive) == 0) {
+                // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
                 m_items.enqueue(new GiteaBackup(m_depot, m_tempDir.path(), o, this));
             } else {
                 //% "%1 is not a valid backup item type. Omitting this entry."
@@ -98,7 +107,7 @@ void BackupManager::doStart()
 
     if (Q_UNLIKELY(m_items.empty())) {
         //% "No backup items are available."
-        handleError(qtTrId("SIHHURI_CRIT_NO_BACK_ITEMS_AVAILABLE"), 6);
+        handleError(qtTrId("SIHHURI_CRIT_NO_BACK_ITEMS_AVAILABLE"), RC::InvalidConfig);
         return;
     }
 
@@ -114,11 +123,13 @@ void BackupManager::runBackup()
     if (m_currentItem) {
         const QStringList errors = m_currentItem->errors();
         if (!errors.empty()) {
-            m_errors.push_back(std::make_pair(m_currentItem->id(), errors));
+            // m_errors.push_back(std::make_pair(m_currentItem->id(), errors));
+            m_errors.emplace_back(m_currentItem->id(), errors);
         }
         const QStringList warnings = m_currentItem->warnings();
         if (!warnings.empty()) {
-            m_warnings.push_back(std::make_pair(m_currentItem->id(), warnings));
+            // m_warnings.push_back(std::make_pair(m_currentItem->id(), warnings));
+            m_warnings.emplace_back(m_currentItem->id(), warnings);
         }
 
         const std::vector<BackupStats> stats = m_currentItem->statistics();
@@ -161,7 +172,7 @@ void BackupManager::doChangeOwner()
     const QFileInfo fi = m_changeOwnerQueue.dequeue();
 
     if (fi.fileName() != QLatin1String("lost+found")) {
-        auto chown = new QProcess(this);
+        auto chown = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
         chown->setProgram(QStringLiteral("chown"));
         chown->setWorkingDirectory(m_depot);
         QStringList args;
@@ -171,10 +182,10 @@ void BackupManager::doChangeOwner()
         args << m_owner;
         args << fi.fileName();
         chown->setArguments(args);
-        connect(chown, &QProcess::readyReadStandardError, this, [=](){
+        connect(chown, &QProcess::readyReadStandardError, this, [chown](){
             qWarning("chown: %s", chown->readAllStandardError().constData());
         });
-        connect(chown, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+        connect(chown, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
             doChangeOwner();
         });
         chown->start();
@@ -188,8 +199,8 @@ void BackupManager::finish()
     const auto timeEnd = std::chrono::high_resolution_clock::now();
     const auto timeUsed = static_cast<qint32>(std::chrono::duration_cast<std::chrono::seconds>(timeEnd - m_timeStart).count());
 
-    int errorCount = 0;
-    int warningCount = 0;
+    qsizetype errorCount = 0;
+    qsizetype warningCount = 0;
 
     if (!m_errors.empty()) {
         for (const std::pair<QString,QStringList> &itemErrors : std::as_const(m_errors)) {
@@ -226,11 +237,11 @@ void BackupManager::finish()
     QCoreApplication::exit();
 }
 
-void BackupManager::handleError(const QString &msg, int exitCode)
+void BackupManager::handleError(const QString &msg, RC exitCode)
 {
     qCritical("%s", qUtf8Printable(msg));
 
-    QCoreApplication::exit(exitCode);
+    QCoreApplication::exit(static_cast<int>(exitCode));
 }
 
 #include "moc_backupmanager.cpp"

@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 #include <QLocale>
 #include <QTimer>
+#include <chrono>
 
 CyrusBackup::CyrusBackup(const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent)
     : AbstractBackup(QStringLiteral("Cyrus"), QString(), target, tempDir, options, parent)
@@ -87,20 +88,20 @@ void CyrusBackup::backupMailboxes()
     //% "Starting dump of mailboxes database."
     logInfo(qtTrId("SIHHURI_INFO_START_MBOXLIST_DUMP"));
 
-    auto ctl_mboxlist = new QProcess(this);
+    auto ctl_mboxlist = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     ctl_mboxlist->setWorkingDirectory(m_configDirectory);
     ctl_mboxlist->setProgram(ctl_mboxlistPath);
     ctl_mboxlist->setArguments({QStringLiteral("-d")});
-    connect(ctl_mboxlist, &QProcess::readyReadStandardError, this, [=](){
+    connect(ctl_mboxlist, &QProcess::readyReadStandardError, this, [this, ctl_mboxlist](){
         logWarning(QStringLiteral("ctl_mboxlist: %1").arg(QString::fromUtf8(ctl_mboxlist->readAllStandardError())));
     });
-    connect(ctl_mboxlist, &QProcess::readyReadStandardOutput, this, [=]{
+    connect(ctl_mboxlist, &QProcess::readyReadStandardOutput, this, [this, ctl_mboxlist, dbDumpFile]{
         if (dbDumpFile->write(ctl_mboxlist->readAllStandardOutput()) < 0) {
             //% "Can not write mailboxes database to %1: %2"
             logWarning(qtTrId("SIHHURI_WARN_CYRUS_FAILED_WRITE_DBDUMPFILE").arg(dbDumpFile->fileName(), dbDumpFile->errorString()));
         }
     });
-    connect(ctl_mboxlist, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(ctl_mboxlist, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, dbDumpFile](int exitCode, QProcess::ExitStatus exitStatus){
         const qint64 timeUsed = getStepTimeUsed();
         QLocale locale;
         dbDumpFile->close();
@@ -115,11 +116,11 @@ void CyrusBackup::backupMailboxes()
 void CyrusBackup::stopService()
 {
     auto systemctl = stopSystemdService(m_service);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         const int waitSeconds = 10;
         //% "Waiting %1 seconds for Cyrus to completely shut down."
         logInfo(qtTrId("SIHHURI_INFO_WAIT_CYRUS_SHUTDOWN").arg(waitSeconds));
-        QTimer::singleShot(waitSeconds * 1000, this, [=](){
+        QTimer::singleShot(std::chrono::seconds(waitSeconds), this, [this](){
             backupDirectories();
         });
     });
@@ -129,7 +130,7 @@ void CyrusBackup::stopService()
 void CyrusBackup::startService()
 {
     auto systemctl = startSystemdService(m_service);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         disableMaintenance();
     });
     systemctl->start();

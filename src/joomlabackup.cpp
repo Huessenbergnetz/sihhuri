@@ -31,7 +31,7 @@ bool JoomlaBackup::loadConfiguration()
 
     QString dbName, dbUser, dbPassword, dbType;
     QString dbHost = QStringLiteral("localhost");
-    int dbPort = 3306;
+    int dbPort = 3306; // NOLINT(cppcoreguidelines-avoid-magic-numbers)
 
     QRegularExpression dbTypeRegEx(QStringLiteral("dbtype\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);
     QRegularExpression dbNameRegEx(QStringLiteral("db\\s*=\\s*[\"']([^\"']*)[\"']"), QRegularExpression::CaseInsensitiveOption);

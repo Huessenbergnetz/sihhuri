@@ -9,6 +9,7 @@
 #include <QLocale>
 #include <QDir>
 #include <QFileInfo>
+#include <chrono>
 
 AbstractBackup::AbstractBackup(const QString &type, const QString &configFile, const QString &target, const QString &tempDir, const QVariantMap &options, QObject *parent)
     : QObject(parent),
@@ -103,16 +104,17 @@ void AbstractBackup::isTimerServiceActive()
 
     const QString timerService = m_timer + QLatin1String(".service");
 
-    auto systemctl = new QProcess(this);
+    auto systemctl = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     systemctl->setProgram(QStringLiteral("systemctl"));
     systemctl->setArguments({QStringLiteral("--quiet"), QStringLiteral("is-active"), timerService});
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, timerService](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
             if (m_tryCountIsServiceActive < m_maxTryIsServiceActive) {
                 m_tryCountIsServiceActive++;
                 //% "%1 is still active, waiting %2 seconds for it to finish."
                 logInfo(qtTrId("SIHHURI_INFO_SERVICE_STILL_ACTIVE_WAITING").arg(timerService, QString::number(m_waitSecondsIsServiceActive)));
-                QTimer::singleShot(m_waitSecondsIsServiceActive * 1000, this, &AbstractBackup::isTimerServiceActive);
+                // QTimer::singleShot(m_waitSecondsIsServiceActive * 1000, this, &AbstractBackup::isTimerServiceActive);
+                QTimer::singleShot(std::chrono::seconds(m_waitSecondsIsServiceActive), this, &AbstractBackup::isTimerServiceActive);
             } else {
                 //% "Waited %1 seconds for %2 to finish without success."
                 logWarning(qtTrId("SIHHURI_WARN_SERVICE_ACTIVE_TOO_LONG").arg(QString::number(m_waitSecondsIsServiceActive * m_maxTryIsServiceActive), timerService));
@@ -132,7 +134,7 @@ void AbstractBackup::isTimerServiceActive()
 void AbstractBackup::stopTimer()
 {
     auto systemctl = stopSystemdTimer(m_timer);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         enableMaintenance();
     });
     systemctl->start();
@@ -174,13 +176,13 @@ void AbstractBackup::backupDirectories()
     //% "Current size of the backed up data for %1: Files: %2, Size: %3"
     logInfo(qtTrId("SIHHURI_INFO_CURRENT_DIR_SIZE").arg(dir, locale.toString(m_currentStats.filesBefore), locale.formattedDataSize(m_currentStats.sizeBefore)));
 
-    auto rsync = new QProcess(this);
+    auto rsync = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     rsync->setProgram(QStringLiteral("rsync"));
     rsync->setArguments({QStringLiteral("-aR"), QStringLiteral("--delete"), QStringLiteral("--delete-after"), dir, target()});
-    connect(rsync, &QProcess::readyReadStandardError, this, [=](){
+    connect(rsync, &QProcess::readyReadStandardError, this, [this, rsync](){
         logCritical(QStringLiteral("rsync: %1").arg(QString::fromUtf8(rsync->readAllStandardError())));
     });
-    connect(rsync, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(rsync, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, dir](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode == 0 && exitStatus == QProcess::NormalExit) {
             const std::pair<qint64,qint64> dirSizeAfter = getDirSize(dir);
             m_currentStats.filesAfter = dirSizeAfter.first;
@@ -212,7 +214,7 @@ void AbstractBackup::startTimer()
     }
 
     auto systemctl = startSystemdTimer(m_timer);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         emitFinished();
     });
     systemctl->start();
@@ -372,7 +374,7 @@ QProcess *AbstractBackup::startStopServiceOrTimer(const QString &unit, bool stop
         logInfo(qtTrId("SIHHURI_INFO_STOP_SERVICE_OR_TIMER").arg(unit));
     }
 
-    auto p = new QProcess(this);
+    auto p = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     p->setProgram(QStringLiteral("systemctl"));
 
     QStringList args;
@@ -391,7 +393,7 @@ QProcess *AbstractBackup::startStopServiceOrTimer(const QString &unit, bool stop
 QProcess* AbstractBackup::startServiceOrTimer(const QString &unit)
 {
     auto systemctl = startStopServiceOrTimer(unit, false);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, unit](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
             //% "Failed to start %1."
             logWarning(qtTrId("SIHHURI_WARN_FAILED_START_TIMER_OR_SERVICE").arg(unit));
@@ -403,7 +405,7 @@ QProcess* AbstractBackup::startServiceOrTimer(const QString &unit)
 QProcess* AbstractBackup::stopServiceOrTimer(const QString &unit)
 {
     auto systemctl = startStopServiceOrTimer(unit, true);
-    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(systemctl, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, unit](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 && exitStatus != QProcess::NormalExit) {
             //% "Failed to stop %1."
             logWarning(qtTrId("SIHHURI_WARN_FAILED_STOP_TIMER_OR_SERVICE").arg(unit));

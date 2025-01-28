@@ -7,6 +7,7 @@
 #define BACKUPMANAGER_H
 
 #include "abstractbackup.h"
+#include "returncodes.h"
 #include <QObject>
 #include <QVariantMap>
 #include <QTemporaryDir>
@@ -34,7 +35,7 @@ private slots:
 private:
     void changeOwner();
     void finish();
-    void handleError(const QString &msg, int exitCode);
+    void handleError(const QString &msg, RC exitCode);
 
     std::vector<BackupStats> m_stats;
     std::vector<std::pair<QString, QStringList>> m_errors;

@@ -37,7 +37,7 @@ bool WordPressBackup::loadConfiguration()
 
     QString dbName, dbUser, dbPassword;
     QString dbHost = QStringLiteral("localhost");
-    int dbPort = 3306;
+    int dbPort = DbBackup::mysqlDefaultPort;
 
     QRegularExpression dbNameRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_NAME[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
     QRegularExpression dbUserRegEx(QStringLiteral("define\\s*\\(\\s*[\"']DB_USER[\"']\\s*,\\s*[\"']([^\"']+)[\"']\\s*\\)\\s*;"), QRegularExpression::CaseInsensitiveOption);
@@ -100,11 +100,11 @@ void WordPressBackup::enableMaintenance()
 
     QStringList args({QStringLiteral("-u"), user(), QStringLiteral("wp"), QStringLiteral("maintenance-mode"), QStringLiteral("activate")});
 
-    auto wpMaintenanceProc = new QProcess(this);
+    auto wpMaintenanceProc = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     wpMaintenanceProc->setWorkingDirectory(configFileRoot());
     wpMaintenanceProc->setArguments(args);
     wpMaintenanceProc->setProgram(QStringLiteral("sudo"));
-    connect(wpMaintenanceProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(wpMaintenanceProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             //% "Failed to enable maintenance mode."
             logWarning(qtTrId("SIHHURI_WARN_FAILED_ENABLE_MAINTENANCE"));
@@ -144,11 +144,11 @@ void WordPressBackup::disableMaintenance()
 
     QStringList args({QStringLiteral("-u"), user(), QStringLiteral("wp"), QStringLiteral("maintenance-mode"), QStringLiteral("deactivate")});
 
-    auto wpMaintenanceProc = new QProcess(this);
+    auto wpMaintenanceProc = new QProcess(this); // NOLINT(cppcoreguidelines-owning-memory)
     wpMaintenanceProc->setWorkingDirectory(configFileRoot());
     wpMaintenanceProc->setArguments(args);
     wpMaintenanceProc->setProgram(QStringLiteral("sudo"));
-    connect(wpMaintenanceProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode, QProcess::ExitStatus exitStatus){
+    connect(wpMaintenanceProc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this](int exitCode, QProcess::ExitStatus exitStatus){
         if (exitCode != 0 || exitStatus != QProcess::NormalExit) {
             //% "Failed to disable maintenance mode."
             logWarning(qtTrId("SIHHURI_WARN_FAILED_DISABLE_MAINTENANCE"));

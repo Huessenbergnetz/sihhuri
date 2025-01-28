@@ -25,6 +25,7 @@ add_executable(sihhuri
   giteabackup.cpp
   backupmanager.h
   backupmanager.cpp
+  returncodes.h
 )
 
 target_compile_features(sihhuri PRIVATE cxx_std_14)
