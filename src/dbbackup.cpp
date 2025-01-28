@@ -100,17 +100,17 @@ void DbBackup::backupMySql()
 
     {
         QTextStream confOut(&m_dbConfigFile);
-        confOut << "[client]" << endl;
-        confOut << "user=\"" << dbUser() << "\"" << endl;
-        confOut << "password=\"" << dbPassword() << "\"" << endl;
+        confOut << "[client]" << '\n';
+        confOut << "user=\"" << dbUser() << "\"" << '\n';
+        confOut << "password=\"" << dbPassword() << "\"" << '\n';
         if (dbHost().startsWith(QLatin1Char('/'))) {
-            confOut << "socket=\"" << dbHost() << "\"" << endl;
+            confOut << "socket=\"" << dbHost() << "\"" << '\n';
         } else {
             if (dbHost() != QLatin1String("localhost")) {
-                confOut << "host=\"" << dbHost() << "\"" << endl;
+                confOut << "host=\"" << dbHost() << "\"" << '\n';
             }
             if (dbPort() != 3306) {
-                confOut << "port=\"" << dbPort() << "\"" << endl;
+                confOut << "port=\"" << dbPort() << "\"" << '\n';
             }
         }
         confOut.flush();
@@ -208,7 +208,7 @@ void DbBackup::hashDatabase()
         if (hashValuesFile.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Append)) {
 
             QTextStream out(&hashValuesFile);
-            out << sha256sum << " " << dumpFileFi.fileName() << endl;
+            out << sha256sum << " " << dumpFileFi.fileName() << '\n';
             out.flush();
 
             hashValuesFile.close();
