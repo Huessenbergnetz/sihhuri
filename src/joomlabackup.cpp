@@ -159,9 +159,9 @@ bool JoomlaBackup::changeMaintenance(bool activate)
 
     configFile.close();
 
-    const QString replaceValue = activate ? QStringLiteral("$offline = '1'") : QStringLiteral("$offline = '0'");
+    const QString replaceValue = activate ? QStringLiteral("$offline = true") : QStringLiteral("$offline = false");
 
-    static QRegularExpression regex(QStringLiteral("\\$offline\\s*=\\s*[\"'][^\"']*[\"']"));
+    static QRegularExpression regex(QStringLiteral("\\$offline\\s*=\\s*(false|true)"));
     config.replace(regex, replaceValue);
 
     if (!configFile.open(QIODevice::WriteOnly|QIODevice::Text)) {
