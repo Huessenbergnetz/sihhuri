@@ -31,8 +31,6 @@ target_sources(sihhuri
         returncodes.h
 )
 
-target_compile_features(sihhuri PRIVATE cxx_std_14)
-
 target_link_libraries(sihhuri
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Core
@@ -55,7 +53,7 @@ target_compile_definitions(sihhuri
         QT_NO_CAST_FROM_BYTEARRAY
         QT_USE_QSTRINGBUILDER
         QT_USE_FAST_OPERATOR_PLUS
-        QT_DISABLE_DEPRECATED_BEFORE=0x050500
+        QT_DISABLE_DEPRECATED_BEFORE=0x060200
         SIHHURI_VERSION="${PROJECT_VERSION}"
         SIHHURI_CONFIGFILE="${CMAKE_INSTALL_FULL_SYSCONFDIR}/${PROJECT_NAME}.json"
         SIHHURI_TRANSDIR="${CMAKE_INSTALL_FULL_LOCALEDIR}"
