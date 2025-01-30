@@ -1,31 +1,34 @@
 # SPDX-FileCopyrightText: (C) 2021 Matthias Fehring / www.huessenbergnetz.de
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-add_executable(sihhuri
-  main.cpp
-  abstractbackup.h
-  abstractbackup.cpp
-  directorybackup.h
-  directorybackup.cpp
-  dbbackup.h
-  dbbackup.cpp
-  wordpressbackup.h
-  wordpressbackup.cpp
-  nextcloudbackup.h
-  nextcloudbackup.cpp
-  joomlabackup.h
-  joomlabackup.cpp
-  matomobackup.h
-  matomobackup.cpp
-  cyrusbackup.h
-  cyrusbackup.cpp
-  roundcubebackup.h
-  roundcubebackup.cpp
-  giteabackup.h
-  giteabackup.cpp
-  backupmanager.h
-  backupmanager.cpp
-  returncodes.h
+add_executable(sihhuri)
+
+target_sources(sihhuri
+    PRIVATE
+        main.cpp
+        abstractbackup.h
+        abstractbackup.cpp
+        directorybackup.h
+        directorybackup.cpp
+        dbbackup.h
+        dbbackup.cpp
+        wordpressbackup.h
+        wordpressbackup.cpp
+        nextcloudbackup.h
+        nextcloudbackup.cpp
+        joomlabackup.h
+        joomlabackup.cpp
+        matomobackup.h
+        matomobackup.cpp
+        cyrusbackup.h
+        cyrusbackup.cpp
+        roundcubebackup.h
+        roundcubebackup.cpp
+        giteabackup.h
+        giteabackup.cpp
+        backupmanager.h
+        backupmanager.cpp
+        returncodes.h
 )
 
 target_compile_features(sihhuri PRIVATE cxx_std_14)

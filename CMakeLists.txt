@@ -18,7 +18,7 @@ set(CMAKE_AUTORCC ON)
 
 set(QT_VERSION_MAJOR 6)
 
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Network LinguistTools REQUIRED)
 # find_package(SimpleMail2Qt${QT_VERSION_MAJOR} 2.1.0 REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SYSTEMD REQUIRED libsystemd)
